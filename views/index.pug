@@ -1,0 +1,68 @@
+doctype html
+html
+    head
+        title Pinterest Clone
+        style
+            include style.css
+        script(src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js")
+
+        script(type="text/javascript").
+            function newclick(){
+                    let formEle = document.getElementById('newpic');
+                    let visibility = formEle.style.display;
+                    if(visibility=='flex')
+                        formEle.style.display="none";
+                    else 
+                        formEle.style.display="flex";
+            }
+
+
+    body
+        div Welcome...
+        if name
+                div #{name}
+        div 
+            div(class="topnav")
+                a(href="/") Home
+                if name
+                    a(href="/mypics") My Pics
+                    a(onclick="newclick()") New Pic&#x2193;
+                    form(id="newpic",action="/newpic",method="POST")
+                        a(style="color:red;position:relative:left:0;right:0;",onclick="newclick()") X
+                        url: input(type="text" name="urllink" placeholder="enter url" required)
+                        description: input(type="text" name="desc" placeholder="enter description" required)
+                        input(type="submit" value='submit')
+                    a(href="/logout") Logout
+                else 
+                    a(href="/auth/github/callback") login
+            if arrayResponse
+                div(class="grid")
+                    each pic in arrayResponse
+                        div(class="grid-item")
+                            - let link = pic[1]
+                            - let desc = pic[0]
+                            - let id = pic[2];
+                            - let likers = pic[3];
+                            - let creatorId = pic[4];
+                            - let creatorPic = pic[5];
+                            h3 #{desc}
+                            img(src=link,onerror='this.src="https://cdn.icon-icons.com/icons2/1369/PNG/512/-broken-image_89881.png"')
+                            div(class="imgfooter")    
+                                img(src=creatorPic,class="creatorimage",onerror='this.src="https://cdn.icon-icons.com/icons2/1369/PNG/512/-broken-image_89881.png"')
+                                - let starred = likers.includes(user_id)?true:false;
+                                if(!starred && name)
+                                    a(class="star" href="/star?id="+id+"&liker="+user_id) ☆
+                                else if(name)
+                                    a(class="unstar" href="/unstar?id="+id+"&unliker="+user_id) ★
+                                if(creatorId==user_id)
+                                    a(href="/delete?id="+id,onclick="confirm('Are you sure')",style="text-decoration:none;") delete
+script(src="https://unpkg.com/masonry-layout@4/dist/masonry.pkgd.min.js")
+script(type="module").
+    window.onload = () =>{
+        const grid = document.querySelector('.grid');
+
+        const masonry = new Masonry(grid,{
+            itemSelector:'.grid-item',
+            columnWidth:100
+        });
+    }
